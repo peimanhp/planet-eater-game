@@ -55,7 +55,6 @@ let minRadius = 20;
 let colorArray = ["#EC5A5A", "#55C2B6", "#3A6AA6", "#F2C16D", "#663232"];
 let redCounter = 0;
 let othersCounter = 0;
-let winGame = false;
 
 window.addEventListener("mousemove", (e) => {
   mouse.x = e.x;
@@ -90,18 +89,18 @@ function Circle(x, y, radius, dx, dy) {
     this.y += this.dy;
 
     if (
-      mouse.x - this.x < 100 &&
-      mouse.x - this.x > -100 &&
-      mouse.y - this.y < 100 &&
-      mouse.y - this.y > -100
+      mouse.x - this.x < 150 &&
+      mouse.x - this.x > -150 &&
+      mouse.y - this.y < 150 &&
+      mouse.y - this.y > -150
     ) {
       if (mouse.x - this.x > 0) {
-        this.dx += 0.05;
-      } else this.dx -= 0.05;
+        this.dx += 0.15;
+      } else this.dx -= 0.15;
 
       if (mouse.y - this.y > 0) {
-        this.dy += 0.05;
-      } else this.dy -= 0.05;
+        this.dy += 0.15;
+      } else this.dy -= 0.15;
 
       if (
         mouse.x - this.x < this.radius + 10 &&
@@ -157,6 +156,8 @@ for (let i = 0; i < 50; i++) {
   // console.log(circleArray[i])
 }
 
+let endGame = false;
+
 function animate() {
   requestAnimationFrame(animate);
   c.clearRect(0, 0, innerWidth, innerHeight); //clear whole screen
@@ -166,16 +167,17 @@ function animate() {
       if (circleArray[i].color == "#EC5A5A") redCounter--;
       else othersCounter++;
       circleArray.splice(i, 1);
+      console.log(circleArray[i], circleArray.length);
 
-      if (redCounter == 0 && othersCounter < 5) {
-        console.log("you won");   
-      
+      if (redCounter == 0 && othersCounter < 5 && endGame === false) {
+        endGame = true;
+        console.log("you won");
       }
-    } else if (othersCounter == 5 && redCounter != 0) {
+    } else if (othersCounter == 5 && redCounter != 0 && endGame === false) {
+      endGame = true;
       console.log("you lost");
     }
-
-    circleArray[i].update();
+    if (circleArray[i] !== undefined) circleArray[i].update();
   }
 }
 
