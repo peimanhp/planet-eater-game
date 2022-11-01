@@ -49,10 +49,13 @@ let mouse = {
   x: undefined,
   y: undefined,
 };
-let maxRadius = 50;
-let minRadius = 4;
+let maxRadius = 60;
+let minRadius = 20;
 
-let colorArray = ["#55C2B6", "#3A6AA6", "#F2C16D", "#EC5A5A", "#663232"];
+let colorArray = ["#EC5A5A", "#55C2B6", "#3A6AA6", "#F2C16D", "#663232"];
+let redCounter = 0;
+let othersCounter = 0;
+let winGame = false;
 
 window.addEventListener("mousemove", (e) => {
   mouse.x = e.x;
@@ -81,34 +84,65 @@ function Circle(x, y, radius, dx, dy) {
   };
 
   this.update = function () {
-    if (this.x + this.radius > innerWidth || this.x - this.radius < 0) {
-      this.dx *= -1;
-    }
-
-    if (this.y + this.radius > innerHeight || this.y - this.radius < 0) {
-      this.dy *= -1;
-    }
+    this.inTheWindow();
 
     this.x += this.dx;
     this.y += this.dy;
 
     if (
-      mouse.x - this.x < 50 &&
-      mouse.x - this.x > -50 &&
-      mouse.y - this.y < 50 &&
-      mouse.y - this.y > -50
+      mouse.x - this.x < 100 &&
+      mouse.x - this.x > -100 &&
+      mouse.y - this.y < 100 &&
+      mouse.y - this.y > -100
     ) {
-      if (this.radius < maxRadius) this.radius += 1;
-    } else if (this.radius > this.minRadius) this.radius -= 1;
+      if (mouse.x - this.x > 0) {
+        this.dx += 0.05;
+      } else this.dx -= 0.05;
+
+      if (mouse.y - this.y > 0) {
+        this.dy += 0.05;
+      } else this.dy -= 0.05;
+
+      if (
+        mouse.x - this.x < this.radius + 10 &&
+        mouse.x - this.x > -this.radius + 10 &&
+        mouse.y - this.y < this.radius + 10 &&
+        mouse.y - this.y > -this.radius + 10
+      ) {
+        this.radius -= 2;
+        if (this.radius < 5) {
+          this.radius = 0;
+        }
+      }
+
+      if (
+        mouse.x - this.x < 5 &&
+        mouse.x - this.x > -5 &&
+        mouse.y - this.y < 5 &&
+        mouse.y - this.y > -5
+      ) {
+        this.radius = 0;
+      }
+    }
 
     this.draw();
+  };
+
+  this.inTheWindow = function () {
+    if (this.x + this.radius >= innerWidth || this.x - this.radius <= 0) {
+      this.dx *= -1;
+    }
+
+    if (this.y + this.radius >= innerHeight || this.y - this.radius <= 0) {
+      this.dy *= -1;
+    }
   };
 }
 
 let circleArray = [];
 
-for (let i = 0; i < 1000; i++) {
-  let radius = Math.random() * minRadius + 1;
+for (let i = 0; i < 50; i++) {
+  let radius = Math.random() * minRadius + 10;
   let x = Math.random() * (innerWidth - radius * 2) + radius;
   let y = Math.random() * (innerHeight - radius * 2) + radius;
   let dx = Math.random() - 0.5;
@@ -116,6 +150,11 @@ for (let i = 0; i < 1000; i++) {
 
   let circle = new Circle(x, y, radius, dx, dy);
   circleArray.push(circle);
+
+  if (circle.color == "#EC5A5A") {
+    redCounter++;
+  }
+  // console.log(circleArray[i])
 }
 
 function animate() {
@@ -123,6 +162,19 @@ function animate() {
   c.clearRect(0, 0, innerWidth, innerHeight); //clear whole screen
 
   for (let i = 0; i < circleArray.length; i++) {
+    if (circleArray[i].radius == 0) {
+      if (circleArray[i].color == "#EC5A5A") redCounter--;
+      else othersCounter++;
+      circleArray.splice(i, 1);
+
+      if (redCounter == 0 && othersCounter < 5) {
+        console.log("you won");   
+      
+      }
+    } else if (othersCounter == 5 && redCounter != 0) {
+      console.log("you lost");
+    }
+
     circleArray[i].update();
   }
 }
