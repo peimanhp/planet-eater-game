@@ -4,11 +4,27 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Vaccum cleaner game</title>
+    <link rel="stylesheet" href="./bootstrap.min.css">
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+
+    <p id="timer"><span id="seconds">00</span>:<span id="tens">00</span></p>
+
+<!-- winner pop-up message -->
+<div class="modal-container rounded-3 d-flex justify-content-center align-items-center" id="modal_container">
+    <div class="my-modal shadow text-center">
+        <h2 class="mb-4" id="win_message">YOU WON!</h2>
+        <h3 class="mb-4" id="timer_record"></h3>
+        <!-- button to reload page -->
+        <button class="btn btn-danger px-4" id="play_again">PLAY AGAIN</button>
+    </div>
+</div>
+
     <canvas></canvas>
     <script src="./canvas.js"></script>
+    <script src="./bootstrap.bundle.min.js">
+    </script>
 </body>
 </html>
