@@ -8,15 +8,14 @@ const c = canvas.getContext("2d");
 const modal = document.getElementById("modal_container");
 const winner = document.getElementById("win_message");
 const playAgain = document.getElementById("play_again");
-const timer = document.getElementById("timer");
+const timerOnTop = document.getElementById("timer");
 const timerRecord = document.getElementById("timer_record");
 
 //stopwatch vaiables
-let seconds = 00;
-let tens = 00;
-let appendTens = document.getElementById("tens");
-let appendSeconds = document.getElementById("seconds");
-let Interval;
+let minute = 00;
+let second = 00;
+let count = 00;
+let timer = false;
 
 //game decleration
 let mouse = {
@@ -31,6 +30,9 @@ let redCounter = 0;
 let othersCounter = 0;
 let endGame = false;
 let displayedModal = false;
+let circleArray = [];
+let circleNumbers = 50;
+let redCircleNumbers = circleNumbers / 5;
 
 window.addEventListener("mousemove", (e) => {
   mouse.x = e.x;
@@ -49,7 +51,11 @@ function Circle(x, y, radius, dx, dy) {
   this.dy = dy;
   this.radius = radius;
   this.minRadius = radius;
-  this.color = colorArray[Math.floor(Math.random() * colorArray.length)];
+
+  //setting 1/5 of circles to red color
+  if (redCircleNumbers > 0) this.color = colorArray[0];
+  else
+    this.color = colorArray[Math.ceil(Math.random() * (colorArray.length - 1))];
 
   this.draw = function () {
     c.beginPath();
@@ -141,12 +147,12 @@ function Circle(x, y, radius, dx, dy) {
       if (redCounter == 0) {
         setTimeout(() => {
           winner.innerHTML = `YOU WON!`;
-          timerRecord.innerHTML = `Your Record: ${timer.innerText}`;
+          timerRecord.innerHTML = `Your Record: ${timerOnTop.innerText}`;
           modal.classList.add("show");
         }, 800);
       } else {
         setTimeout(() => {
-          winner.innerHTML = `YOU LOST!`;          
+          winner.innerHTML = `YOU LOST!`;
           modal.classList.add("show");
         }, 800);
       }
@@ -167,21 +173,20 @@ function Circle(x, y, radius, dx, dy) {
   };
 }
 
-let circleArray = [];
-
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < circleNumbers; i++) {
   let radius = Math.random() * minRadius + 10;
   let x = Math.random() * (innerWidth - radius * 2) + radius;
   let y = Math.random() * (innerHeight - radius * 2) + radius;
-  let dx = Math.random() - 0.5;
-  let dy = Math.random() - 0.5;
+  let dx = Math.random() * 10 - 5;
+  let dy = Math.random() * 10 - 5;
 
   let circle = new Circle(x, y, radius, dx, dy);
   circleArray.push(circle);
+  if (redCircleNumbers > 0) redCircleNumbers--;
 
   if (circle.color == "#EC5A5A") {
     redCounter++;
-  }
+  }  
 }
 
 function animate() {
@@ -195,14 +200,14 @@ function animate() {
       circleArray.splice(i, 1);
       console.log(circleArray[i], circleArray.length);
 
-      if (redCounter == 0 && othersCounter < 5 && endGame === false) {
+      if (redCounter == 0 && othersCounter < (circleNumbers / 10) && endGame === false) {
         endGame = true;
-        clearInterval(Interval);
+        timer = false;
         console.log("you won");
       }
-    } else if (othersCounter == 5 && redCounter != 0 && endGame === false) {
+    } else if (othersCounter == (circleNumbers / 10) && redCounter != 0 && endGame === false) {
       endGame = true;
-      clearInterval(Interval);
+      timer = false;
       console.log("you lost");
     }
     if (circleArray[i] !== undefined && endGame === false)
@@ -215,30 +220,48 @@ animate();
 
 //stopwatch
 window.onload = function () {
-  clearInterval(Interval);
-  Interval = setInterval(startTimer, 10);
-
-  function startTimer() {
-    tens++;
-
-    if (tens <= 9) {
-      appendTens.innerHTML = "0" + tens;
-    }
-
-    if (tens > 9) {
-      appendTens.innerHTML = tens;
-    }
-
-    if (tens > 99) {
-      console.log("seconds");
-      seconds++;
-      appendSeconds.innerHTML = "0" + seconds;
-      tens = 0;
-      appendTens.innerHTML = "0" + 0;
-    }
-
-    if (seconds > 9) {
-      appendSeconds.innerHTML = seconds;
-    }
-  }
+  timer = true;
+  stopWatch();
 };
+
+function stopWatch() {
+  if (timer) {
+    count++;
+
+    if (count == 100) {
+      second++;
+      count = 0;
+    }
+
+    if (second == 60) {
+      minute++;
+      second = 0;
+    }
+
+    if (minute == 60) {
+      minute = 0;
+      second = 0;
+    }
+
+    let minString = minute;
+    let secString = second;
+    let countString = count;
+
+    if (minute < 10) {
+      minString = "0" + minString;
+    }
+
+    if (second < 10) {
+      secString = "0" + secString;
+    }
+
+    if (count < 10) {
+      countString = "0" + countString;
+    }
+
+    document.getElementById("min").innerHTML = minString;
+    document.getElementById("sec").innerHTML = secString;
+    document.getElementById("count").innerHTML = countString;
+    setTimeout(stopWatch, 10);
+  }
+}

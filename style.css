@@ -46,3 +46,8 @@ body {
 .my-modal button {
   font-size: 1.5em;
 }
+
+#timer{
+    position: absolute;
+    margin: 2px auto;
+}
