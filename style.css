@@ -107,3 +107,29 @@ h1 span {
 #start_message.show {
   opacity: 1;
 }
+
+#plus_one{
+  font-size: 3em;
+  position: absolute;
+  opacity: 0;
+  color: green;
+  transition: opacity 0.5s ease;
+}
+
+#plus_one.show{
+  position: absolute;
+  opacity: 1;
+}
+
+#minus_one{
+  font-size: 3em;
+  position: absolute;
+  opacity: 0;
+  color: red;
+  transition: opacity 0.5s ease;
+}
+
+#minus_one.show{
+  position: absolute;
+  opacity: 1;
+}

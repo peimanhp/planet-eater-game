@@ -13,6 +13,8 @@ const timerRecord = document.getElementById("timer_record");
 const untilVictory = document.getElementById("red_countdown");
 const untilDefeat = document.getElementById("others_countdown");
 const startMessage = document.getElementById("start_message");
+const plusOne = document.getElementById("plus_one");
+const minusOne = document.getElementById("minus_one");
 
 //stopwatch vaiables
 let minute = 00;
@@ -98,6 +100,7 @@ function Circle(x, y, radius, dx, dy) {
         this.radius -= 2;
         if (this.radius < 5) {
           this.radius = 0;
+          this.plusMinusOneFunc();
         }
       }
 
@@ -108,10 +111,56 @@ function Circle(x, y, radius, dx, dy) {
         mouse.y - this.y > -5
       ) {
         this.radius = 0;
+        this.plusMinusOneFunc();
       }
     }
 
     this.draw();
+  };
+
+  // function & animations on show and hide +1 -1
+  this.plusMinusOneFunc = function () {
+    if (this.color == "#EC5A5A") {
+      plusOne.style.left = `${this.x}px`;
+      plusOne.style.top = `${this.y}px`;
+      plusOne.classList.add("show");
+      let animation = anime.timeline({});
+      animation
+        .add({
+          targets: "#plus_one",
+          scale: 2,
+          rotate: "1turn",
+        })
+        .add({
+          targets: "#plus_one",
+          scale: 0,
+          rotate: 0,
+          duration: 500,
+        });
+      setTimeout(() => {
+        plusOne.classList.remove("show");
+      }, 1000);
+    } else {
+      minusOne.style.left = `${this.x}px`;
+      minusOne.style.top = `${this.y}px`;
+      minusOne.classList.add("show");
+      let animation = anime.timeline({});
+      animation
+        .add({
+          targets: "#minus_one",
+          scale: 2,
+          rotate: "1turn",
+        })
+        .add({
+          targets: "#minus_one",
+          scale: 0,
+          rotate: 0,
+          duration: 500,
+        });
+      setTimeout(() => {
+        minusOne.classList.remove("show");
+      }, 1000);
+    }
   };
 
   this.inTheWindow = function () {
@@ -243,7 +292,9 @@ window.onload = function () {
   timer = true;
   stopWatch();
   startMessage.classList.add("show");
-  setTimeout(()=>{startMessage.classList.remove("show");}, 2000)
+  setTimeout(() => {
+    startMessage.classList.remove("show");
+  }, 2000);
 };
 
 function stopWatch() {
