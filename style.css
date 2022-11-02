@@ -1,5 +1,11 @@
+@font-face {
+  font-family: RubikMoonrocks;
+  src: url(./RubikMoonrocks-Regular.ttf);
+}
+
 * {
-  font-size: 18px;
+  font-family: RubikMoonrocks;
+  font-size: 15px;
 }
 
 body {
@@ -47,7 +53,57 @@ body {
   font-size: 1.5em;
 }
 
-#timer{
-    position: absolute;
-    margin: 2px auto;
+#timer_record {
+  color: green;
+}
+
+#timer {
+  position: absolute;
+  left: 40px;
+  top: 20px;
+  pointer-events: none;
+  color: gray;
+}
+#min,
+#sec,
+#count {
+  font-size: 1em;
+  color: gray;
+}
+
+#red_countdown {
+  pointer-events: none;
+  position: absolute;
+  left: 240px;
+  top: 20px;
+  color: green;
+}
+
+#others_countdown {
+  pointer-events: none;
+  position: absolute;
+  left: 550px;
+  top: 20px;
+  color: red;
+}
+
+#start_message {
+  opacity: 0;
+  width: 100%;
+  pointer-events: none;
+  font-size: 5vw;
+  position: absolute;
+  top: 50%;
+  text-align: center;
+  transition: opacity 1.5s ease;
+}
+
+h1 span {
+  pointer-events: none;
+  font-size: 5vw;
+  color: red;
+}
+
+#start_message.show {
+  opacity: 1;
 }

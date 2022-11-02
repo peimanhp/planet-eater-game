@@ -10,6 +10,9 @@ const winner = document.getElementById("win_message");
 const playAgain = document.getElementById("play_again");
 const timerOnTop = document.getElementById("timer");
 const timerRecord = document.getElementById("timer_record");
+const untilVictory = document.getElementById("red_countdown");
+const untilDefeat = document.getElementById("others_countdown");
+const startMessage = document.getElementById("start_message");
 
 //stopwatch vaiables
 let minute = 00;
@@ -33,6 +36,8 @@ let displayedModal = false;
 let circleArray = [];
 let circleNumbers = 50;
 let redCircleNumbers = circleNumbers / 5;
+let othersToLoose = Math.ceil(circleNumbers / 10);
+let toDefeat = othersToLoose;
 
 window.addEventListener("mousemove", (e) => {
   mouse.x = e.x;
@@ -71,10 +76,10 @@ function Circle(x, y, radius, dx, dy) {
     this.y += this.dy;
 
     if (
-      mouse.x - this.x < 150 &&
-      mouse.x - this.x > -150 &&
-      mouse.y - this.y < 150 &&
-      mouse.y - this.y > -150
+      mouse.x - this.x < 170 &&
+      mouse.x - this.x > -170 &&
+      mouse.y - this.y < 170 &&
+      mouse.y - this.y > -170
     ) {
       if (mouse.x - this.x > 0) {
         this.dx += 0.1;
@@ -186,8 +191,10 @@ for (let i = 0; i < circleNumbers; i++) {
 
   if (circle.color == "#EC5A5A") {
     redCounter++;
-  }  
+  }
 }
+untilVictory.innerText = `Until Victory: ${redCounter}`;
+untilDefeat.innerText = `Until Defeat: ${toDefeat}`;
 
 function animate() {
   requestAnimationFrame(animate);
@@ -195,17 +202,30 @@ function animate() {
 
   for (let i = 0; i < circleArray.length; i++) {
     if (circleArray[i].radius == 0) {
-      if (circleArray[i].color == "#EC5A5A") redCounter--;
-      else othersCounter++;
+      if (circleArray[i].color == "#EC5A5A") {
+        redCounter--;
+        untilVictory.innerText = `Until Victory: ${redCounter}`;
+      } else othersCounter++;
+      toDefeat = othersToLoose - othersCounter;
+      untilDefeat.innerText = `Until Defeat: ${toDefeat}`;
       circleArray.splice(i, 1);
       console.log(circleArray[i], circleArray.length);
 
-      if (redCounter == 0 && othersCounter < (circleNumbers / 10) && endGame === false) {
+      if (
+        redCounter == 0 &&
+        othersCounter < othersToLoose &&
+        endGame === false
+      ) {
         endGame = true;
         timer = false;
+        winsLog.push(timerOnTop.innerText);
         console.log("you won");
       }
-    } else if (othersCounter == (circleNumbers / 10) && redCounter != 0 && endGame === false) {
+    } else if (
+      othersCounter == othersToLoose &&
+      redCounter != 0 &&
+      endGame === false
+    ) {
       endGame = true;
       timer = false;
       console.log("you lost");
@@ -222,6 +242,8 @@ animate();
 window.onload = function () {
   timer = true;
   stopWatch();
+  startMessage.classList.add("show");
+  setTimeout(()=>{startMessage.classList.remove("show");}, 2000)
 };
 
 function stopWatch() {
