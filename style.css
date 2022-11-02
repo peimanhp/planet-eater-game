@@ -12,6 +12,7 @@ body {
   display: flex;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 .modal-container {
@@ -108,7 +109,8 @@ h1 span {
   opacity: 1;
 }
 
-#plus_one{
+#plus_one {
+  pointer-events: none;
   font-size: 3em;
   position: absolute;
   opacity: 0;
@@ -116,12 +118,13 @@ h1 span {
   transition: opacity 0.5s ease;
 }
 
-#plus_one.show{
+#plus_one.show {
   position: absolute;
   opacity: 1;
 }
 
-#minus_one{
+#minus_one {
+  pointer-events: none;
   font-size: 3em;
   position: absolute;
   opacity: 0;
@@ -129,7 +132,7 @@ h1 span {
   transition: opacity 0.5s ease;
 }
 
-#minus_one.show{
+#minus_one.show {
   position: absolute;
   opacity: 1;
 }

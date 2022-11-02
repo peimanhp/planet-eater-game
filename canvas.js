@@ -40,6 +40,8 @@ let circleNumbers = 50;
 let redCircleNumbers = circleNumbers / 5;
 let othersToLoose = Math.ceil(circleNumbers / 10);
 let toDefeat = othersToLoose;
+let speedDown = false;
+
 
 window.addEventListener("mousemove", (e) => {
   mouse.x = e.x;
@@ -59,6 +61,9 @@ function Circle(x, y, radius, dx, dy) {
   this.radius = radius;
   this.minRadius = radius;
 
+  let unchangedSpeedX = this.dx;
+  let unchangedSpeedY = this.dy;
+
   //setting 1/5 of circles to red color
   if (redCircleNumbers > 0) this.color = colorArray[0];
   else
@@ -72,7 +77,7 @@ function Circle(x, y, radius, dx, dy) {
   };
 
   this.update = function () {
-    this.inTheWindow();
+    this.inTheWindow();    
 
     this.x += this.dx;
     this.y += this.dy;
@@ -217,6 +222,27 @@ function Circle(x, y, radius, dx, dy) {
     displayedModal = true;
   };
 
+  this.superPowers = function () {
+    this.x += dx;
+    this.y += dy;
+    this.color = "#FF00FB";
+
+    if (
+      mouse.x - this.x < 20 &&
+      mouse.x - this.x > -20 &&
+      mouse.y - this.y < 20 &&
+      mouse.y - this.y > -20
+    ) {
+      this.radius -= 2;
+      if (this.radius <= 0) {
+        speedDown = true;
+      }      
+    }
+    
+
+    this.draw();
+  };
+
   this.XF = function () {
     if (this.dx > 0) {
       this.dx = this.dx - this.xFriction;
@@ -242,6 +268,8 @@ for (let i = 0; i < circleNumbers; i++) {
     redCounter++;
   }
 }
+let slowMotion = new Circle(-50, -50, 20, 5, 3);
+
 untilVictory.innerText = `Until Victory: ${redCounter}`;
 untilDefeat.innerText = `Until Defeat: ${toDefeat}`;
 
@@ -283,6 +311,7 @@ function animate() {
       circleArray[i].update();
     else if (endGame === true) circleArray[i].gravity();
   }
+  slowMotion.superPowers();
 }
 
 animate();
