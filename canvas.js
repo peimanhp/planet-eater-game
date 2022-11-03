@@ -15,6 +15,7 @@ const untilDefeat = document.getElementById("others_countdown");
 const startMessage = document.getElementById("start_message");
 const plusOne = document.getElementById("plus_one");
 const minusOne = document.getElementById("minus_one");
+let hue = 0;
 
 //stopwatch vaiables
 let minute = 00;
@@ -42,7 +43,6 @@ let othersToLoose = Math.ceil(circleNumbers / 10);
 let toDefeat = othersToLoose;
 let speedDown = false;
 
-
 window.addEventListener("mousemove", (e) => {
   mouse.x = e.x;
   mouse.y = e.y;
@@ -61,9 +61,6 @@ function Circle(x, y, radius, dx, dy) {
   this.radius = radius;
   this.minRadius = radius;
 
-  let unchangedSpeedX = this.dx;
-  let unchangedSpeedY = this.dy;
-
   //setting 1/5 of circles to red color
   if (redCircleNumbers > 0) this.color = colorArray[0];
   else
@@ -77,55 +74,84 @@ function Circle(x, y, radius, dx, dy) {
   };
 
   this.update = function () {
-    this.inTheWindow();    
+    this.inTheWindow();
+    this.moveCircles();
+    this.mouseGravity();
+    this.eatingCircles();
+    this.draw();
+  };
+
+  this.powerUp = function () {
+    if (toDefeat <= Math.ceil(circleNumbers / 20)) {
+      this.moveCircles();
+    }
+    this.color = "hsl(" + hue + ",100%,50%)";
+
+    //eating circle
+    if (
+      mouse.x - this.x < 20 &&
+      mouse.x - this.x > -20 &&
+      mouse.y - this.y < 20 &&
+      mouse.y - this.y > -20
+    ) {
+      this.radius -= 2;
+      if (this.radius <= 0) {
+        speedDown = true;
+        setTimeout(() => {
+          speedDown = false;
+        }, 7000);
+      }
+    }
+    this.draw();
+  };
+
+  this.gravity = function () {
+    let bounce = 0.7;
+    let gravity = 0.2;
+    this.xFriction = this.radius / 2000;
+
+    if (this.x + this.radius >= innerWidth || this.x - this.radius <= 0) {
+      this.dx *= -1;
+    }
+    if (
+      this.y + this.radius + this.dy >= innerHeight ||
+      this.y + this.radius + this.dy <= this.radius * 2
+    ) {
+      this.dy *= -bounce;
+      if (this.dy < 0 && this.dy > -0.04 * this.radius) this.dy = 0;
+      if (Math.abs(this.dx) < this.xFriction) this.dx = 0;
+    }
 
     this.x += this.dx;
     this.y += this.dy;
+    this.dy += gravity * (this.radius / 20);
 
-    if (
-      mouse.x - this.x < 170 &&
-      mouse.x - this.x > -170 &&
-      mouse.y - this.y < 170 &&
-      mouse.y - this.y > -170
-    ) {
-      if (mouse.x - this.x > 0) {
-        this.dx += 0.1;
-      } else this.dx -= 0.1;
-
-      if (mouse.y - this.y > 0) {
-        this.dy += 0.1;
-      } else this.dy -= 0.1;
-
-      if (
-        mouse.x - this.x < this.radius + 10 &&
-        mouse.x - this.x > -this.radius + 10 &&
-        mouse.y - this.y < this.radius + 10 &&
-        mouse.y - this.y > -this.radius + 10
-      ) {
-        this.radius -= 2;
-        if (this.radius < 5) {
-          this.radius = 0;
-          this.plusMinusOneFunc();
-        }
-      }
-
-      if (
-        mouse.x - this.x < 5 &&
-        mouse.x - this.x > -5 &&
-        mouse.y - this.y < 5 &&
-        mouse.y - this.y > -5
-      ) {
-        this.radius = 0;
-        this.plusMinusOneFunc();
-      }
-    }
-
+    this.XF();
     this.draw();
+
+    if (displayedModal === false) {
+      if (redCounter == 0) {
+        setTimeout(() => {
+          winner.innerHTML = `YOU WON!`;
+          timerRecord.innerHTML = `Your Record: ${timerOnTop.innerText}`;
+          modal.classList.add("show");
+        }, 800);
+      } else {
+        setTimeout(() => {
+          winner.innerHTML = `YOU LOST!`;
+          modal.classList.add("show");
+        }, 800);
+      }
+      playAgain.addEventListener("click", () => {
+        window.location.reload(true);
+      });
+    }
+    displayedModal = true;
   };
 
   // function & animations on show and hide +1 -1
   this.plusMinusOneFunc = function () {
-    if (this.color == "#EC5A5A") {
+    if (this.color == colorArray[0]) {
       plusOne.style.left = `${this.x}px`;
       plusOne.style.top = `${this.y}px`;
       plusOne.classList.add("show");
@@ -178,69 +204,56 @@ function Circle(x, y, radius, dx, dy) {
     }
   };
 
-  this.gravity = function () {
-    let bounce = 0.7;
-    let gravity = 0.2;
-    this.xFriction = this.radius / 2000;
-
-    if (this.x + this.radius >= innerWidth || this.x - this.radius <= 0) {
-      this.dx *= -1;
+  this.moveCircles = function () {
+    if (speedDown === true) {
+      this.x += this.dx / 4;
+      this.y += this.dy / 4;
+    } else {
+      this.x += this.dx;
+      this.y += this.dy;
     }
-    if (
-      this.y + this.radius + this.dy >= innerHeight ||
-      this.y + this.radius + this.dy <= this.radius * 2
-    ) {
-      this.dy *= -bounce;
-      if (this.dy < 0 && this.dy > -0.04 * this.radius) this.dy = 0;
-      if (Math.abs(this.dx) < this.xFriction) this.dx = 0;
-    }
-
-    this.x += this.dx;
-    this.y += this.dy;
-    this.dy += gravity * (this.radius / 20);
-
-    this.XF();
-    this.draw();
-
-    if (displayedModal === false) {
-      if (redCounter == 0) {
-        setTimeout(() => {
-          winner.innerHTML = `YOU WON!`;
-          timerRecord.innerHTML = `Your Record: ${timerOnTop.innerText}`;
-          modal.classList.add("show");
-        }, 800);
-      } else {
-        setTimeout(() => {
-          winner.innerHTML = `YOU LOST!`;
-          modal.classList.add("show");
-        }, 800);
-      }
-      playAgain.addEventListener("click", () => {
-        window.location.reload(true);
-      });
-    }
-    displayedModal = true;
   };
 
-  this.superPowers = function () {
-    this.x += dx;
-    this.y += dy;
-    this.color = "#FF00FB";
-
+  this.mouseGravity = function () {
     if (
-      mouse.x - this.x < 20 &&
-      mouse.x - this.x > -20 &&
-      mouse.y - this.y < 20 &&
-      mouse.y - this.y > -20
+      mouse.x - this.x < 170 &&
+      mouse.x - this.x > -170 &&
+      mouse.y - this.y < 170 &&
+      mouse.y - this.y > -170
+    ) {
+      if (mouse.x - this.x > 0) {
+        this.dx += 0.1;
+      } else this.dx -= 0.1;
+
+      if (mouse.y - this.y > 0) {
+        this.dy += 0.1;
+      } else this.dy -= 0.1;
+    }
+  };
+
+  this.eatingCircles = function () {
+    if (
+      mouse.x - this.x < this.radius + 10 &&
+      mouse.x - this.x > -this.radius + 10 &&
+      mouse.y - this.y < this.radius + 10 &&
+      mouse.y - this.y > -this.radius + 10
     ) {
       this.radius -= 2;
-      if (this.radius <= 0) {
-        speedDown = true;
-      }      
+      if (this.radius < 5) {
+        this.radius = 0;
+        this.plusMinusOneFunc();
+      }
     }
-    
 
-    this.draw();
+    if (
+      mouse.x - this.x < 5 &&
+      mouse.x - this.x > -5 &&
+      mouse.y - this.y < 5 &&
+      mouse.y - this.y > -5
+    ) {
+      this.radius = 0;
+      this.plusMinusOneFunc();
+    }
   };
 
   this.XF = function () {
@@ -264,11 +277,11 @@ for (let i = 0; i < circleNumbers; i++) {
   circleArray.push(circle);
   if (redCircleNumbers > 0) redCircleNumbers--;
 
-  if (circle.color == "#EC5A5A") {
+  if (circle.color == colorArray[0]) {
     redCounter++;
   }
 }
-let slowMotion = new Circle(-50, -50, 20, 5, 3);
+let slowMotion = new Circle(-300, -300, 20, 4, 2.2);
 
 untilVictory.innerText = `Until Victory: ${redCounter}`;
 untilDefeat.innerText = `Until Defeat: ${toDefeat}`;
@@ -279,15 +292,18 @@ function animate() {
 
   for (let i = 0; i < circleArray.length; i++) {
     if (circleArray[i].radius == 0) {
-      if (circleArray[i].color == "#EC5A5A") {
-        redCounter--;
-        untilVictory.innerText = `Until Victory: ${redCounter}`;
-      } else othersCounter++;
-      toDefeat = othersToLoose - othersCounter;
-      untilDefeat.innerText = `Until Defeat: ${toDefeat}`;
-      circleArray.splice(i, 1);
-      console.log(circleArray[i], circleArray.length);
+      function reduceCircle() {
+        if (circleArray[i].color == colorArray[0]) {
+          redCounter--;
+          untilVictory.innerText = `Until Victory: ${redCounter}`;
+        } else othersCounter++;
+        toDefeat = othersToLoose - othersCounter;
+        untilDefeat.innerText = `Until Defeat: ${toDefeat}`;
+        circleArray.splice(i, 1);
+      }
+      reduceCircle();
 
+      // select winner
       if (
         redCounter == 0 &&
         othersCounter < othersToLoose &&
@@ -295,8 +311,6 @@ function animate() {
       ) {
         endGame = true;
         timer = false;
-        winsLog.push(timerOnTop.innerText);
-        console.log("you won");
       }
     } else if (
       othersCounter == othersToLoose &&
@@ -305,13 +319,27 @@ function animate() {
     ) {
       endGame = true;
       timer = false;
-      console.log("you lost");
     }
+
+    // lines between slow moition and circles
+    // let xDistance = slowMotion.x - circleArray[i].x;
+    // let yDistance = slowMotion.y - circleArray[i].y;
+    // let distance = Math.sqrt(xDistance * xDistance + yDistance * yDistance)
+    // if (distance < 250) {
+    //   c.beginPath();
+    //   c.moveTo(slowMotion.x, slowMotion.y);
+    //   c.lineWidth = 2;
+    //   c.lineTo(circleArray[i].x, circleArray[i].y);
+    //   c.strokeStyle = slowMotion.color;
+    //   c.stroke();
+    // }
+
+    hue += 0.1;
     if (circleArray[i] !== undefined && endGame === false)
       circleArray[i].update();
     else if (endGame === true) circleArray[i].gravity();
   }
-  slowMotion.superPowers();
+  slowMotion.powerUp();
 }
 
 animate();
