@@ -42,6 +42,8 @@ let redCircleNumbers = circleNumbers / 5;
 let othersToLoose = Math.ceil(circleNumbers / 10);
 let toDefeat = othersToLoose;
 let speedDown = false;
+let reverseGravity = false;
+let stopMovement = false;
 
 window.addEventListener("mousemove", (e) => {
   mouse.x = e.x;
@@ -71,6 +73,7 @@ function Circle(x, y, radius, dx, dy) {
     c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
     c.fillStyle = this.color;
     c.fill();
+    c.closePath();
   };
 
   this.update = function () {
@@ -81,7 +84,7 @@ function Circle(x, y, radius, dx, dy) {
     this.draw();
   };
 
-  this.powerUp = function () {
+  this.powerUpSlow = function () {
     if (toDefeat <= Math.ceil(circleNumbers / 20)) {
       this.moveCircles();
     }
@@ -102,6 +105,30 @@ function Circle(x, y, radius, dx, dy) {
         }, 7000);
       }
     }
+    this.draw();
+  };
+
+  this.powerUpAntiG = function () {
+    if (redCounter <= Math.ceil(circleNumbers / 10)) {
+      this.moveCircles();
+    }
+    this.color = "hsl(" + hue + ",100%,50%)";
+    if (
+      mouse.x - this.x < 20 &&
+      mouse.x - this.x > -20 &&
+      mouse.y - this.y < 20 &&
+      mouse.y - this.y > -20
+    ) {
+      this.radius -= 2;
+      if (this.radius <= 0) {
+        reverseGravity = true;
+        stopMovement = true;
+        setTimeout(() => {
+          reverseGravity = false;
+        }, 7000);
+      }
+    }
+
     this.draw();
   };
 
@@ -195,20 +222,31 @@ function Circle(x, y, radius, dx, dy) {
   };
 
   this.inTheWindow = function () {
-    if (this.x + this.radius >= innerWidth || this.x - this.radius <= 0) {
+    if (
+      this.x + this.radius + this.dx >= innerWidth ||
+      this.x + this.dx - this.radius <= 0
+    ) {
       this.dx *= -1;
     }
 
-    if (this.y + this.radius >= innerHeight || this.y - this.radius <= 0) {
+    if (
+      this.y + this.radius + this.dy >= innerHeight ||
+      this.y + this.dy - this.radius <= 0
+    ) {
       this.dy *= -1;
     }
   };
 
   this.moveCircles = function () {
     if (speedDown === true) {
-      this.x += this.dx / 4;
-      this.y += this.dy / 4;
-    } else {
+      this.x += this.dx / 5;
+      this.y += this.dy / 5;
+    }
+    // else if (stopMovement === true) {
+    //   this.dx *= -1;
+    //   this.dy *= -1;
+    // }
+    else {
       this.x += this.dx;
       this.y += this.dy;
     }
@@ -221,13 +259,19 @@ function Circle(x, y, radius, dx, dy) {
       mouse.y - this.y < 170 &&
       mouse.y - this.y > -170
     ) {
-      if (mouse.x - this.x > 0) {
-        this.dx += 0.1;
-      } else this.dx -= 0.1;
+      if (reverseGravity === false) {
+        if (mouse.x - this.x > 0) {
+          this.dx += 0.1;
+        } else this.dx -= 0.1;
 
-      if (mouse.y - this.y > 0) {
-        this.dy += 0.1;
-      } else this.dy -= 0.1;
+        if (mouse.y - this.y > 0) {
+          this.dy += 0.1;
+        } else this.dy -= 0.1;
+      }
+      // else {
+      //     this.dx *= -1;
+      //     this.dy *= -1;
+      // }
     }
   };
 
@@ -281,7 +325,8 @@ for (let i = 0; i < circleNumbers; i++) {
     redCounter++;
   }
 }
-let slowMotion = new Circle(-300, -300, 20, 4, 2.2);
+let slowMotion = new Circle(-30, -30, 20, 4, 2.2);
+// let antiGravity = new Circle(-30, -30, 20, 4, 2.2);
 
 untilVictory.innerText = `Until Victory: ${redCounter}`;
 untilDefeat.innerText = `Until Defeat: ${toDefeat}`;
@@ -321,6 +366,19 @@ function animate() {
       timer = false;
     }
 
+    // if (reverseGravity === true) {
+    //   let xDistance = antiGravity.x - circleArray[i].x;
+    //   let yDistance = antiGravity.y - circleArray[i].y;
+    //   let distance = Math.sqrt(xDistance * xDistance + yDistance * yDistance)
+    //   if (distance < 250 ) {
+    //     stopMovement = true;
+    //     circleArray[i].x = circleArray[i].radius + antiGravity.radius + 1;
+    //     circleArray[i].dx *= -1;
+    //     circleArray[i].y = circleArray[i].radius + antiGravity.radius + 1;
+    //     circleArray[i].dy *= -1;
+    //   }
+    // }
+
     // lines between slow moition and circles
     // let xDistance = slowMotion.x - circleArray[i].x;
     // let yDistance = slowMotion.y - circleArray[i].y;
@@ -339,7 +397,8 @@ function animate() {
       circleArray[i].update();
     else if (endGame === true) circleArray[i].gravity();
   }
-  slowMotion.powerUp();
+  slowMotion.powerUpSlow();
+  // antiGravity.powerUpAntiG();
 }
 
 animate();
